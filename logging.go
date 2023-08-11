@@ -14,9 +14,9 @@ const logsFolder = "Logs"
 const loggingRoutesFile = "Logs/Logging-Routes.gbconfig"
 
 var logFileMap = make(map[string]string)
-var flog = make(map[string]func(message string, args ...interface{})) // Updated function signature
+var flog = make(map[string]func(message string, args ...interface{})) 
 
-func GetFlog() map[string]func(message string, args ...interface{}) { // Updated function signature
+func GetFlog() map[string]func(message string, args ...interface{}) { 
 	return flog
 }
 
@@ -29,7 +29,6 @@ func logDating() string {
 func updateLoggingRoutesFile() {
 	logTypeFolders := make(map[string]string)
 
-	// Generate log type folders for each log type
 	logTypes := []string{"warn", "error", "info", "debug", "security", "network", "incident", "discord", "silent"}
 	for _, logType := range logTypes {
 		logTypeFolder := path.Join(logsFolder, logType)
@@ -40,7 +39,6 @@ func updateLoggingRoutesFile() {
 		}
 	}
 
-	// Update the log file map with new log file paths
 	for logType, logTypeFolder := range logTypeFolders {
 		if _, exists := logFileMap[logType]; !exists {
 			logFileName := fmt.Sprintf("log_%s_%d.log", logType, time.Now().UnixNano())
@@ -49,7 +47,6 @@ func updateLoggingRoutesFile() {
 		}
 	}
 
-	// Update the logging routes file
 	var routes []string
 	for logType, logFileName := range logFileMap {
 		routes = append(routes, fmt.Sprintf("%s:%s", logType, logFileName))
@@ -77,9 +74,9 @@ func readLoggingRoutesFile() {
 	}
 }
 
-func createLogFunction(logType string) func(message string, args ...interface{}) { // Updated function signature
+func createLogFunction(logType string) func(message string, args ...interface{}) {
 	readLoggingRoutesFile()
-	return func(message string, args ...interface{}) { // Updated function signature
+	return func(message string, args ...interface{}) {
 		flogg(logType, message, args...)
 	}
 }
@@ -107,20 +104,23 @@ func flogg(logType, format string, args ...interface{}) {
 
 	prefix := fmt.Sprintf("%s [%s]:", logDating(), strings.ToUpper(logType))
 
-	// Convert variadic arguments to a slice of interface{}
 	var argsSlice []interface{}
 	for _, arg := range args {
 		argsSlice = append(argsSlice, arg)
 	}
 
 	message := fmt.Sprintf(format, argsSlice...)
+	if logType == "silent" || logType == "network" {
+		fmt.Fprintln(logFile, prefix, message)
+		return
+	}
 	log.Println(prefix, message)
 }
 func init() {
 	updateLoggingRoutesFile()
 	readLoggingRoutesFile()
 
-	flog = map[string]func(message string, args ...interface{}){ // Updated function signature
+	flog = map[string]func(message string, args ...interface{}){
 		"warn":     createLogFunction("warn"),
 		"error":    createLogFunction("error"),
 		"info":     createLogFunction("info"),
