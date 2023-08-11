@@ -14,11 +14,12 @@ const logsFolder = "Logs"
 const loggingRoutesFile = "Logs/Logging-Routes.gbconfig"
 
 var logFileMap = make(map[string]string)
-var flog = make(map[string]func(message string))
+var flog = make(map[string]func(message string, args ...interface{})) // Updated function signature
 
-func GetFlog() map[string]func(message string) {
+func GetFlog() map[string]func(message string, args ...interface{}) { // Updated function signature
 	return flog
 }
+
 func logDating() string {
 	now := time.Now()
 	milliseconds := now.Nanosecond() / 1e6
@@ -76,14 +77,14 @@ func readLoggingRoutesFile() {
 	}
 }
 
-func createLogFunction(logType string) func(message string) {
+func createLogFunction(logType string) func(message string, args ...interface{}) { // Updated function signature
 	readLoggingRoutesFile()
-	return func(message string) {
-		flogg(logType, message)
+	return func(message string, args ...interface{}) { // Updated function signature
+		flogg(logType, message, args...)
 	}
 }
 
-func flogg(logType, message string) {
+func flogg(logType, format string, args ...interface{}) {
 	if _, exists := logFileMap[logType]; !exists {
 		logTypeFolder := path.Join(logsFolder, logType)
 		if _, err := os.Stat(logTypeFolder); os.IsNotExist(err) {
@@ -105,14 +106,21 @@ func flogg(logType, message string) {
 	log.SetOutput(io.MultiWriter(os.Stdout, logFile))
 
 	prefix := fmt.Sprintf("%s [%s]:", logDating(), strings.ToUpper(logType))
+
+	// Convert variadic arguments to a slice of interface{}
+	var argsSlice []interface{}
+	for _, arg := range args {
+		argsSlice = append(argsSlice, arg)
+	}
+
+	message := fmt.Sprintf(format, argsSlice...)
 	log.Println(prefix, message)
 }
-
 func init() {
 	updateLoggingRoutesFile()
 	readLoggingRoutesFile()
 
-	flog = map[string]func(message string){
+	flog = map[string]func(message string, args ...interface{}){ // Updated function signature
 		"warn":     createLogFunction("warn"),
 		"error":    createLogFunction("error"),
 		"info":     createLogFunction("info"),
