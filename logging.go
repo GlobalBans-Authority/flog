@@ -14,9 +14,9 @@ const logsFolder = "Logs"
 const loggingRoutesFile = "Logs/Logging-Routes.gbconfig"
 
 var logFileMap = make(map[string]string)
-var flog = make(map[string]func(message string, args ...interface{})) 
+var flog = make(map[string]func(message string, args ...interface{}))
 
-func GetFlog() map[string]func(message string, args ...interface{}) { 
+func GetFlog() map[string]func(message string, args ...interface{}) {
 	return flog
 }
 
@@ -29,7 +29,7 @@ func logDating() string {
 func updateLoggingRoutesFile() {
 	logTypeFolders := make(map[string]string)
 
-	logTypes := []string{"warn", "error", "info", "debug", "security", "network", "incident", "discord", "silent"}
+	logTypes := []string{"warn", "error", "info", "debug", "security", "network", "incident", "discord", "silent", "database"}
 	for _, logType := range logTypes {
 		logTypeFolder := path.Join(logsFolder, logType)
 		logTypeFolders[logType] = logTypeFolder
@@ -110,7 +110,7 @@ func flogg(logType, format string, args ...interface{}) {
 	}
 
 	message := fmt.Sprintf(format, argsSlice...)
-	if logType == "silent" || logType == "network" {
+	if logType == "silent" || logType == "network" || logType == "database" {
 		fmt.Fprintln(logFile, prefix, message)
 		return
 	}
@@ -130,5 +130,6 @@ func init() {
 		"incident": createLogFunction("incident"),
 		"discord":  createLogFunction("discord"),
 		"silent":   createLogFunction("silent"),
+		"database": createLogFunction("database"),
 	}
 }
