@@ -41,7 +41,6 @@ package flog
 import (
 	"fmt"
 	"log"
-	storage "mtgolauncher/backend/Storage"
 	"os"
 	"path"
 	"runtime"
@@ -67,7 +66,7 @@ var (
 	resetColor    = "\033[0m"               // Reset color to default
 )
 
-// Fuck you think it does? launch you to mars? It fucking initilizes the logger
+// initilizes the logger
 func Init() error {
 	appDataDir := os.Getenv("APPDATA")
 	if appDataDir == "" {
