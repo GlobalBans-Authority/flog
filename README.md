@@ -1,6 +1,4 @@
 # FLog - A Simple Farmers Logger
-<p align="center"><img src = "/assets/FLog.png"></p>
-
 <p align="center"><img src = "/assets/example.png"></p>
 
 FLog is a straightforward logger for Go that keeps things simple, just like logging should be.
